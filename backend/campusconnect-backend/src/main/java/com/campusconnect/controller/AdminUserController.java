@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.campusconnect.dto.ApiResponse;
 import com.campusconnect.dto.CreateUserRequest;
+import com.campusconnect.dto.UpdateUserRequest;
 import com.campusconnect.dto.UserResponse;
 import com.campusconnect.service.UserService;
 
@@ -64,6 +65,52 @@ public class AdminUserController {
                         .message("User fetched successfully")
                         .data(user)
                         .build();
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest request) {
+
+        UserResponse userResponse = userService.updateUser(id, request);
+
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("User updated successfully")
+                .data(userResponse)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<ApiResponse<UserResponse>> disableUser(
+            @PathVariable Long id) {
+
+        UserResponse userResponse = userService.disableUser(id);
+
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("User disabled successfully")
+                .data(userResponse)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @PatchMapping("/{id}/enable")
+    public ResponseEntity<ApiResponse<UserResponse>> enableUser(
+            @PathVariable Long id) {
+
+        UserResponse userResponse = userService.enableUser(id);
+
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("User enabled successfully")
+                .data(userResponse)
+                .build();
 
         return ResponseEntity.ok(response);
     }

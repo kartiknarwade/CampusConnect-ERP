@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.campusconnect.dto.CreateUserRequest;
+import com.campusconnect.dto.UpdateUserRequest;
 import com.campusconnect.dto.UserResponse;
 import com.campusconnect.entity.Role;
 import com.campusconnect.entity.User;
@@ -88,5 +89,71 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .roleName(user.getRole().getRoleName())
                 .build();
+    }
+    
+    @Override
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found with id: " + id));
+
+        if (!user.getEmail().equals(request.getEmail())
+                && userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException(
+                    "User already exists with email: " + request.getEmail());
+        }
+
+        Role role = roleRepository.findByRoleName(request.getRoleName())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Role not found: " + request.getRoleName()));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setRole(role);
+
+        if (request.getEnabled() != null) {
+            user.setEnabled(request.getEnabled());
+        }
+
+        if (request.getAccountLocked() != null) {
+            user.setAccountLocked(request.getAccountLocked());
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return mapToUserResponse(updatedUser);
+    }
+    
+    @Override
+    public UserResponse disableUser(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found with id: " + id));
+
+        user.setEnabled(false);
+
+        User updatedUser = userRepository.save(user);
+
+        return mapToUserResponse(updatedUser);
+    }
+
+    @Override
+    public UserResponse enableUser(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found with id: " + id));
+
+        user.setEnabled(true);
+        user.setAccountLocked(false);
+
+        User updatedUser = userRepository.save(user);
+
+        return mapToUserResponse(updatedUser);
     }
 }
