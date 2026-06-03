@@ -10,6 +10,8 @@ import com.campusconnect.entity.User;
 import com.campusconnect.repository.RoleRepository;
 import com.campusconnect.repository.UserRepository;
 import com.campusconnect.service.UserService;
+import com.campusconnect.exception.DuplicateResourceException;
+import com.campusconnect.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,12 +26,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse createUser(CreateUserRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User already exists with email: " + request.getEmail());
-        }
+    	if (userRepository.existsByEmail(request.getEmail())) {
+    	    throw new DuplicateResourceException(
+    	            "User already exists with email: " + request.getEmail());
+    	}
 
         Role role = roleRepository.findByRoleName(request.getRoleName())
-                .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRoleName()));
+        		.orElseThrow(() ->
+                new ResourceNotFoundException(
+                        "Role not found: " + request.getRoleName()));
 
         User user = User.builder()
                 .firstName(request.getFirstName())
