@@ -1,5 +1,7 @@
 package com.campusconnect.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +35,36 @@ public class AdminUserController {
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+    
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+
+        List<UserResponse> users = userService.getAllUsers();
+
+        ApiResponse<List<UserResponse>> response =
+                ApiResponse.<List<UserResponse>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Users fetched successfully")
+                        .data(users)
+                        .build();
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(
+            @PathVariable Long id) {
+
+        UserResponse user = userService.getUserById(id);
+
+        ApiResponse<UserResponse> response =
+                ApiResponse.<UserResponse>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("User fetched successfully")
+                        .data(user)
+                        .build();
+
+        return ResponseEntity.ok(response);
     }
 }

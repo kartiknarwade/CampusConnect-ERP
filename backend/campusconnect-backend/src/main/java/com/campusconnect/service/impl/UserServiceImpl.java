@@ -1,5 +1,7 @@
 package com.campusconnect.service.impl;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +57,36 @@ public class UserServiceImpl implements UserService {
                 .lastName(savedUser.getLastName())
                 .email(savedUser.getEmail())
                 .roleName(savedUser.getRole().getRoleName())
+                .build();
+    }
+    
+    @Override
+    public List<UserResponse> getAllUsers() {
+
+        return userRepository.findAll()
+                .stream()
+                .map(this::mapToUserResponse)
+                .toList();
+    }
+
+    @Override
+    public UserResponse getUserById(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found with id: " + id));
+
+        return mapToUserResponse(user);
+    }
+
+    private UserResponse mapToUserResponse(User user) {
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .roleName(user.getRole().getRoleName())
                 .build();
     }
 }
