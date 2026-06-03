@@ -9,6 +9,7 @@ import com.campusconnect.dto.CreateUserRequest;
 import com.campusconnect.dto.UserResponse;
 import com.campusconnect.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -18,9 +19,10 @@ public class AdminUserController {
 
     private final UserService userService;
 
+
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
-            @RequestBody CreateUserRequest request) {
+            @Valid @RequestBody CreateUserRequest request) {
 
         UserResponse userResponse = userService.createUser(request);
 

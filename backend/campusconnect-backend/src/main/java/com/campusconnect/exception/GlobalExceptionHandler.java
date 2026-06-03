@@ -1,6 +1,7 @@
 package com.campusconnect.exception;
 
 import java.time.LocalDateTime;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,5 +43,25 @@ public class GlobalExceptionHandler {
         error.put("message", "Something went wrong. Please try again later.");
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
+
+        Map<String, String> fieldErrors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("error", "Validation Failed");
+        error.put("message", "Invalid request data");
+        error.put("details", fieldErrors);
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }
